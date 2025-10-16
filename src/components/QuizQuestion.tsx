@@ -1,38 +1,67 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { QuizOption } from '@/store/quizStore';
 
-interface QuizQuestionProps {
-  questionNumber: number;
-  totalQuestions: number;
-  title: string;
-  subtitle?: string;
-  videoSrc?: string;
-  videoPoster?: string;
-  options: QuizOption[];
-  onOptionSelect: (option: QuizOption) => void;
+interface QuizOption {
+  id: string;
+  text: string;
+  value: number;
 }
 
-const QuizQuestion = ({ 
-  questionNumber, 
-  totalQuestions, 
-  title, 
-  subtitle,
-  videoSrc,
-  videoPoster,
-  options, 
-  onOptionSelect 
-}: QuizQuestionProps) => {
+interface QuizQuestionProps {
+  onNext: () => void;
+}
+
+const QuizQuestion = ({ onNext }: QuizQuestionProps) => {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  
+  const questions = [
+    {
+      title: "Qual é sua maior dificuldade nos estudos?",
+      options: [
+        { id: "1", text: "Procrastinação e falta de foco", value: 1 },
+        { id: "2", text: "Não conseguir memorizar o conteúdo", value: 2 },
+        { id: "3", text: "Ansiedade e bloqueios mentais", value: 3 },
+        { id: "4", text: "Falta de organização e método", value: 4 }
+      ]
+    },
+    {
+      title: "Como você se sente antes das provas?",
+      options: [
+        { id: "1", text: "Muito ansioso e nervoso", value: 1 },
+        { id: "2", text: "Confuso e sem direção", value: 2 },
+        { id: "3", text: "Preparado mas com medo", value: 3 },
+        { id: "4", text: "Tranquilo e confiante", value: 4 }
+      ]
+    },
+    {
+      title: "Qual é seu maior desafio na redação?",
+      options: [
+        { id: "1", text: "Não sei por onde começar", value: 1 },
+        { id: "2", text: "Falta de argumentos", value: 2 },
+        { id: "3", text: "Estrutura e organização", value: 3 },
+        { id: "4", text: "Tempo insuficiente", value: 4 }
+      ]
+    }
+  ];
+
+  const handleOptionSelect = (option: QuizOption) => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      onNext();
+    }
+  };
+
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const progress = (questionNumber / totalQuestions) * 100;
+  const progress = ((currentQuestion + 1) / questions.length) * 100;
   
   const handleSelect = (option: QuizOption) => {
     setSelectedOption(option.id);
-    setTimeout(() => onOptionSelect(option), 800);
+    setTimeout(() => handleOptionSelect(option), 800);
   };
   
   return (
-    <div className="min-h-screen bg-gradient-dark px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 px-4 py-6">
       <div className="max-w-sm mx-auto space-y-6">
         
         {/* Progress Header */}
@@ -40,105 +69,69 @@ const QuizQuestion = ({
           className="space-y-3"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
         >
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">
-              Pergunta {questionNumber} de {totalQuestions}
-            </span>
-            <span className="text-sm text-primary font-semibold">
-              {Math.round(progress)}%
-            </span>
+            <span className="text-sm text-white/70">Progresso do diagnóstico</span>
+            <span className="text-sm text-white/70">{Math.round(progress)}% completo</span>
           </div>
-          
-          <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+          <div className="w-full bg-white/20 rounded-full h-2">
             <motion.div 
-              className="h-full bg-gradient-gold"
+              className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             />
           </div>
         </motion.div>
         
-        {/* 1. TÍTULO - em cima */}
-        <motion.div
-          className="text-center mb-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <h2 className="text-xl font-bold text-white leading-tight px-2">
-            {title}
-          </h2>
-        </motion.div>
-        
-        {/* 2. VÍDEO - no meio */}
-        {videoSrc && (
-          <motion.div 
-            className="w-full mb-4 rounded-lg overflow-hidden"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <video 
-              controls 
-              className="w-full"
-              poster={videoPoster}
-            >
-              <source src={videoSrc} type="video/mp4" />
-            </video>
-          </motion.div>
-        )}
-        
-        {/* 3. SUBTÍTULO - abaixo do vídeo */}
-        {subtitle && (
-          <motion.div 
-            className="text-center mb-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <p className="text-gray-300 text-sm leading-relaxed px-4">
-              {subtitle}
-            </p>
-          </motion.div>
-        )}
-        
-        {/* 4. OPÇÕES - por último, com cores douradas */}
+        {/* Question Card */}
         <motion.div 
-          className="space-y-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 shadow-2xl border border-white/20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
-          {options.map((option, index) => (
-            <motion.button
-              key={option.id}
-              onClick={() => handleSelect(option)}
-              whileHover={{ scale: 1.02, x: 8 }}
-              whileTap={{ scale: 0.98 }}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 * index }}
-              className={`w-full p-4 rounded-xl text-white transition-all duration-300 ${
-                selectedOption === option.id
-                  ? 'bg-yellow-500/20 border-2 border-yellow-500 shadow-[0_0_20px_rgba(255,215,0,0.4)]'
-                  : 'bg-gray-800/50 border border-yellow-500/30 hover:border-yellow-500 hover:bg-yellow-500/10 hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <span className="text-xl">{option.icon}</span>
-                <div className="text-left flex-1">
-                  <div className="font-semibold text-white">{option.text}</div>
-                  {option.subtext && (
-                    <div className="text-xs text-gray-400 mt-1">{option.subtext}</div>
-                  )}
-                </div>
-              </div>
-            </motion.button>
-          ))}
+          <div className="space-y-4">
+            <div className="text-center">
+              <span className="text-sm text-white/70">Pergunta {currentQuestion + 1} de {questions.length}</span>
+              <h2 className="text-xl font-bold text-white mt-2">{questions[currentQuestion].title}</h2>
+            </div>
+            
+            <div className="space-y-3">
+              {questions[currentQuestion].options.map((option) => (
+                <motion.button
+                  key={option.id}
+                  onClick={() => handleSelect(option)}
+                  className={`w-full p-4 rounded-2xl text-left transition-all duration-300 ${
+                    selectedOption === option.id
+                      ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-lg'
+                      : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+                  }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 * parseInt(option.id) }}
+                >
+                  {option.text}
+                </motion.button>
+              ))}
+            </div>
+          </div>
         </motion.div>
         
+        {/* Footer */}
+        <motion.div 
+          className="text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <p className="text-xs text-white/50">
+            🔒 Seus dados são 100% seguros • Usado apenas para personalização
+          </p>
+        </motion.div>
       </div>
     </div>
   );
