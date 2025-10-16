@@ -4,10 +4,9 @@ import { UserProfile } from '@/store/quizStore';
 interface QuizResultProps {
   profile: UserProfile;
   onRestart: () => void;
-  onNext?: () => void;
 }
 
-const QuizResult = ({ profile, onRestart, onNext }: QuizResultProps) => {
+const QuizResult = ({ profile, onRestart }: QuizResultProps) => {
   // Calcular dias restantes até o ENEM (9 de novembro de 2025)
   const calcularDiasRestantes = () => {
     const dataEnem = new Date('2025-11-09T00:00:00');
@@ -111,7 +110,7 @@ const QuizResult = ({ profile, onRestart, onNext }: QuizResultProps) => {
           <motion.button 
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => onNext && onNext()}
+            onClick={() => window.location.href = 'https://funil-vendas-neurohack.netlify.app'}
             className="w-full h-16 bg-gradient-to-r from-green-500 to-green-600 text-black text-lg font-black rounded-2xl shadow-[0_0_30px_rgba(34,197,94,0.5)] relative overflow-hidden"
           >
             <span className="relative z-10">

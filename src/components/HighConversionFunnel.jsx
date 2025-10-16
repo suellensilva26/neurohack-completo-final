@@ -6,13 +6,15 @@ import SocialProofDemo from './SocialProofDemo';
 import VSLScreen from './VSLScreen';
 import SuperCheckout from './SuperCheckout';
 import QuizResult from './QuizResult';
+import QuizApp from './QuizApp';
 
 export default function HighConversionFunnel() {
   const [currentScreen, setCurrentScreen] = useState('quiz');
   const [funnelData, setFunnelData] = useState({});
 
   const screenFlow = {
-    'quiz': () => setCurrentScreen('quiz-result'),
+    'quiz': () => setCurrentScreen('quiz-diagnostico'),
+    'quiz-diagnostico': () => setCurrentScreen('quiz-result'),
     'quiz-result': () => setCurrentScreen('diagnosis'),
     'diagnosis': () => setCurrentScreen('solution-reveal'),
     'solution-reveal': () => setCurrentScreen('social-proof'),
@@ -33,6 +35,9 @@ export default function HighConversionFunnel() {
   return (
     <div className="funnel-container min-h-screen">
       {currentScreen === 'quiz' && (
+        <QuizApp />
+      )}
+      {currentScreen === 'quiz-diagnostico' && (
         <QuizScreen 
           onComplete={nextScreen} 
           onDataUpdate={updateFunnelData}
